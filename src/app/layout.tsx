@@ -29,7 +29,7 @@ export default function RootLayout({
         className={`${inter.variable} ${tajawal.variable} font-sans bg-stone-50 text-stone-900 antialiased selection:bg-stone-300 selection:text-stone-900`}
       >
         <Preloader />
-        <BackgroundEffects />
+        {/* <BackgroundEffects /> */}
         <TranslationProvider>
           <div className="flex min-h-screen flex-col overflow-hidden relative">
             <Header />

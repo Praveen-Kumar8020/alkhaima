@@ -42,6 +42,7 @@ export default function Header() {
 
     return (
         <motion.header
+            dir={locale === "ar" ? "rtl" : "ltr"}
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
@@ -58,7 +59,7 @@ export default function Header() {
                             src="/logo.png"
                             alt="Logo"
                             fill
-                            className="object-contain object-left"
+                            className={`object-contain ${locale === 'ar' ? 'object-right' : 'object-left'}`}
                             priority
                         />
                     </div>
@@ -68,7 +69,7 @@ export default function Header() {
                             src="/logo_mobile.png"
                             alt="Logo"
                             fill
-                            className="object-contain object-left"
+                            className={`object-contain ${locale === 'ar' ? 'object-right' : 'object-left'}`}
                             priority
                         />
                     </div>

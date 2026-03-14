@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useTranslation } from "./TranslationProvider";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
+import Image from "next/image";
 
 function Typewriter({ text, highlightText }: { text: string, highlightText?: string }) {
     const [displayedText, setDisplayedText] = useState("");
@@ -75,7 +76,7 @@ function Typewriter({ text, highlightText }: { text: string, highlightText?: str
 }
 
 export default function Hero() {
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
 
     const { scrollYProgress } = useScroll({
@@ -86,102 +87,99 @@ export default function Hero() {
     // 3D Parallax Effects
     const yText = useTransform(scrollYProgress, [0, 1], [0, 200]);
     const opacityText = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-    const scaleImage = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-    const filterImage = useTransform(scrollYProgress, [0, 1], ["brightness(1)", "brightness(0.5)"]);
 
     return (
         <section
             ref={containerRef}
             id="home"
-            className="relative h-screen flex items-center justify-center overflow-hidden bg-stone-900"
+            className="relative h-screen flex items-center overflow-hidden bg-black"
         >
-            {/* Premium Greyscale Background Image with Parallax */}
-            <motion.div
-                className="absolute inset-0 w-full h-full z-0"
-                style={{
-                    scale: scaleImage,
-                    filter: filterImage,
-                    backgroundImage: "url('https://images.unsplash.com/photo-1541888081622-297eb0fc7988?q=80&w=2070&auto=format&fit=crop')",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                }}
-            >
-                {/* Silver/Greyscale Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-stone-900/80 via-stone-800/60 to-stone-900/90 mix-blend-overlay"></div>
-                <div className="absolute inset-0 bg-black/40"></div>
-            </motion.div>
+            {/* Split Backgrounds */}
+            <div className={`absolute inset-0 flex flex-col lg:flex-row ${locale === 'ar' ? 'lg:flex-row-reverse' : ''}`}>
+                <div className="w-full lg:w-[45%] xl:w-[50%] h-full bg-black z-10 transition-all duration-500"></div>
+                <div className="w-full lg:w-[55%] xl:w-[50%] h-full relative z-0 transition-all duration-500 flex items-center justify-center lg:p-12 xl:p-24 overflow-hidden">
+                    {/* The Image */}
+                    <div 
+                        className="absolute inset-0 lg:relative lg:w-[90%] lg:h-[80%] lg:rounded-3xl bg-cover bg-center transition-all duration-500 overflow-hidden"
+                        style={{ backgroundImage: "url('/banner_home.gif')" }}
+                    >
+                        <div className="absolute inset-0 bg-black/40 lg:bg-black/20 z-10"></div>
+                    </div>
+                    {/* Fade effect between solid black and the image (desktop only) */}
+                    <div className={`hidden lg:block absolute inset-y-0 ${locale === 'ar' ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} w-48 from-black to-transparent z-10 transition-all duration-500`}></div>
+                </div>
+            </div>
 
             {/* Content */}
             <motion.div
-                className="relative z-10 text-center px-6 max-w-5xl mx-auto"
+                className={`relative z-20 w-full px-6 md:px-8 lg:px-12 xl:px-16 max-w-[1400px] mx-auto flex flex-col ${locale === 'ar' ? 'items-end text-right' : 'items-start text-left'}`}
                 style={{ y: yText, opacity: opacityText }}
             >
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-                >
-                    <span className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-stone-300 text-sm font-medium tracking-widest mb-6 uppercase">
-                        Al Khaima Real-Estate Company
-                    </span>
-                </motion.div>
-
-                <h1
-                    className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-white mb-6 leading-tight drop-shadow-2xl"
-                    style={{ textShadow: "0 10px 30px rgba(0,0,0,0.5)" }}
-                >
-                    <Typewriter text={t("hero.title")} highlightText={t("hero.highlight")} />
-                </h1>
-
-                <motion.p
-                    className="text-lg md:text-2xl text-stone-300 mb-10 max-w-2xl mx-auto font-light leading-relaxed"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-                >
-                    {t("hero.subtitle")}
-                </motion.p>
-
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-4"
-                >
-                    <a
-                        href="#projects"
-                        className="group relative px-8 py-4 bg-white text-stone-900 font-semibold tracking-wide uppercase overflow-hidden rounded-sm transition-transform hover:scale-105 active:scale-95"
+                <div className="max-w-2xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+                        className="mb-8"
                     >
-                        <span className="relative z-10 flex items-center gap-2">
+                        {/* Desktop Logo */}
+                        <div className={`hidden md:block relative h-12 w-48 ${locale === 'ar' ? 'origin-right' : 'origin-left'}`}>
+                            <Image
+                                src="/logo.png"
+                                alt="Logo"
+                                fill
+                                className={`object-contain ${locale === 'ar' ? 'object-right' : 'object-left'}`}
+                                priority
+                            />
+                        </div>
+                        {/* Mobile Logo */}
+                        <div className={`block md:hidden relative h-10 w-32 ${locale === 'ar' ? 'origin-right' : 'origin-left'}`}>
+                            <Image
+                                src="/logo_mobile.png"
+                                alt="Logo"
+                                fill
+                                className={`object-contain ${locale === 'ar' ? 'object-right' : 'object-left'}`}
+                                priority
+                            />
+                        </div>
+                    </motion.div>
+
+                    <h1
+                        className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]"
+                    >
+                        {t("hero.title2")}
+                    </h1>
+
+                    <motion.p
+                        className="text-base md:text-lg text-stone-300 mb-10 font-medium leading-relaxed max-w-xl"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
+                    >
+                        {t("hero.subtitle2")}
+                    </motion.p>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+                        className={`flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto ${locale === 'ar' ? 'sm:flex-row-reverse justify-end' : 'justify-start'}`}
+                    >
+                        <a
+                            href="#projects"
+                            className="w-full sm:w-auto flex items-center justify-center px-8 py-4 bg-white text-black text-sm font-bold tracking-widest uppercase transition-transform hover:scale-105 active:scale-95"
+                        >
                             {t("hero.cta")}
-                            <ArrowDown size={18} className="transition-transform group-hover:translate-y-1" />
-                        </span>
-                        <div className="absolute inset-0 bg-stone-200 transform scale-y-0 origin-bottom transition-transform duration-300 group-hover:scale-y-100"></div>
-                    </a>
+                        </a>
 
-                    <a
-                        href="#about"
-                        className="px-8 py-4 bg-transparent border border-stone-500 text-white font-semibold tracking-wide uppercase rounded-sm transition-all hover:bg-stone-800 hover:border-stone-400"
-                    >
-                        {t("nav.about")}
-                    </a>
-                </motion.div>
-            </motion.div>
-
-            {/* Scroll indicator */}
-            <motion.div
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1, delay: 1.5 }}
-            >
-                <motion.div
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                    className="w-6 h-10 border-2 border-stone-400 rounded-full flex justify-center p-1"
-                >
-                    <motion.div className="w-1 h-2 bg-stone-300 rounded-full" />
-                </motion.div>
+                        <a
+                            href="#about"
+                            className="w-full sm:w-auto flex items-center justify-center px-8 py-4 bg-transparent border border-white text-white text-sm font-bold tracking-widest uppercase transition-all hover:bg-white hover:text-black"
+                        >
+                            {t("nav.about")}
+                        </a>
+                    </motion.div>
+                </div>
             </motion.div>
         </section>
     );
