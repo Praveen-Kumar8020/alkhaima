@@ -24,7 +24,7 @@ const translations = {
         "hero.subtitle2": "Buy, sell, or invest in properties with trusted guidance from Al Khaima.",
         "hero.cta": "Explore Our Work",
         "about.title": "About Our Company",
-        "about.description": "We aspire to be one of the recognized leaders in the construction sector across the MENA region. Established in 1996, we offer a one-stop service for specialist foundation, civil, and tunnel works.",
+        "about.description": "Al Khaima Real Estate is a Kuwait-based real estate company providing professional property brokerage, marketing, and real estate services. We aim to deliver trusted solutions with transparency, market knowledge, and quality service.",
         "about.readMore": "Read More",
         "services.title": "Our Services",
         "services.1.title": "Property Management",
@@ -94,6 +94,8 @@ const translations = {
         "chat.placeholder": "Type a message...",
         "chat.autoReply": "Thanks! Your message has been submitted. You will receive a response here or via email. You may leave more messages below.\n\nWe'll respond as soon as we can.",
         "contact.form.upload": "Upload Document",
+        "contact.form.success": "Message sent successfully! We will get back to you shortly.",
+        "contact.form.error": "Please fill out all required fields.",
         "video.play": "Play Video",
         "video.pause": "Pause Video"
     },
@@ -110,7 +112,7 @@ const translations = {
         "hero.subtitle2": "اشترِ، بع، أو استثمر في العقارات بتوجيه موثوق من مؤسسة الخيمة.",
         "hero.cta": "استكشف أعمالنا",
         "about.title": "عن الشركة",
-        "about.description": "نطمح لأن نكون أحد أبرز قادة قطاع البناء في منطقة الشرق الأوسط وشمال أفريقيا. تأسسنا في عام 1996، لنقدم خدمات شاملة لأساسات البناء المتخصصة والأعمال المدنية والأنفاق.",
+        "about.description": "شركة الخيمة العقارية هي شركة عقارات مقرها الكويت تقدم خدمات مهنية في الوساطة العقارية والتسويق والخدمات العقارية. نهدف إلى تقديم حلول موثوقة بشفافية ومعرفة بالسوق وخدمة عالية الجودة.",
         "about.readMore": "اقرأ المزيد",
         "services.title": "خدماتنا",
         "services.1.title": "إدارة الأملاك",
@@ -180,6 +182,8 @@ const translations = {
         "chat.placeholder": "اكتب رسالة...",
         "chat.autoReply": "شكراً! تم استلام رسالتك. ستتلقى رداً هنا أو عبر البريد الإلكتروني. يمكنك ترك المزيد من الرسائل أدناه.\n\nسنرد في أقرب وقت ممكن.",
         "contact.form.upload": "تحميل مستند",
+        "contact.form.success": "تم إرسال الرسالة بنجاح! سنعود إليك قريباً.",
+        "contact.form.error": "يرجى ملء جميع الحقول المطلوبة.",
         "video.play": "تشغيل الفيديو",
         "video.pause": "إيقاف الفيديو"
     }

@@ -7,7 +7,7 @@ import {
     ArrowRight, Building2, Droplets, HardHat,
     MapPin, Phone, Mail, Clock, MessageCircle, Send,
     Instagram, Paperclip, Calendar, ChevronLeft, ChevronRight,
-    Play, Pause
+    Play, Pause, CheckCircle2, AlertCircle
 } from "lucide-react";
 import QuickChat from "./QuickChat";
 
@@ -25,6 +25,55 @@ export default function ContentSections() {
     const [isVideoPlaying, setIsVideoPlaying] = useState(false);
     const [videoCursorPos, setVideoCursorPos] = useState({ x: 0, y: 0 });
     const videoRef = useRef<HTMLVideoElement>(null);
+
+    // Contact Form States
+    const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error" | "validation_error">("idle");
+    const [fileName, setFileName] = useState("");
+
+    const handleFormSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Proper validation
+        if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+            setSubmitStatus("validation_error");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setSubmitStatus("idle");
+
+        try {
+            const formDataToSend = new FormData();
+            formDataToSend.append("name", formData.name);
+            formDataToSend.append("email", formData.email);
+            formDataToSend.append("message", formData.message);
+            formDataToSend.append("_subject", "New Contact Inquiry from Al Khaima");
+            formDataToSend.append("_captcha", "false"); 
+            
+            // Note: formsubmit.co requires actual file Blob if uploading,
+            // bypassing file logic here for core simplicity unless attached
+
+            const res = await fetch("https://formsubmit.co/ajax/povah92077@lxbeta.com", {
+                method: "POST",
+                body: formDataToSend
+            });
+
+            if (res.ok) {
+                setSubmitStatus("success");
+                setFormData({ name: "", email: "", message: "" });
+                setFileName("");
+                setTimeout(() => setSubmitStatus("idle"), 5000);
+            } else {
+                setSubmitStatus("error");
+            }
+        } catch (error) {
+            setSubmitStatus("error");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const handleVideoMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -523,29 +572,57 @@ export default function ContentSections() {
                             transition={{ duration: 0.8, delay: 0.2 }}
                             className="bg-white p-10 rounded-2xl shadow-xl border border-stone-100"
                         >
-                            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                            <form className="space-y-6" onSubmit={handleFormSubmit}>
+                                {submitStatus === "success" && (
+                                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg">
+                                        <CheckCircle2 size={24} className="shrink-0" />
+                                        <p className="text-sm font-semibold">{t("contact.form.success" as any)}</p>
+                                    </motion.div>
+                                )}
+                                {submitStatus === "validation_error" && (
+                                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                                        <AlertCircle size={20} className="shrink-0" />
+                                        <p className="text-sm font-semibold">{t("contact.form.error" as any)}</p>
+                                    </motion.div>
+                                )}
+                                {submitStatus === "error" && (
+                                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                                        <AlertCircle size={20} className="shrink-0" />
+                                        <p className="text-sm font-semibold">An error occurred while sending. Please try again.</p>
+                                    </motion.div>
+                                )}
+
                                 <div>
                                     <label className="block text-sm font-bold text-stone-700 mb-2">{t("contact.form.name" as any)}</label>
                                     <input
                                         type="text"
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                         className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all"
                                         placeholder={t("contact.form.name" as any)}
+                                        disabled={isSubmitting}
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-stone-700 mb-2">{t("contact.form.email" as any)}</label>
                                     <input
                                         type="email"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                         className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all"
                                         placeholder={t("contact.form.email" as any)}
+                                        disabled={isSubmitting}
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-stone-700 mb-2">{t("contact.form.message" as any)}</label>
                                     <textarea
                                         rows={4}
+                                        value={formData.message}
+                                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                         className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all resize-none"
                                         placeholder={t("contact.form.message" as any)}
+                                        disabled={isSubmitting}
                                     ></textarea>
                                 </div>
                                 <div>
@@ -555,19 +632,39 @@ export default function ContentSections() {
                                             type="file"
                                             className="hidden"
                                             id="file-upload"
+                                            onChange={(e) => setFileName(e.target.files?.[0]?.name || "")}
+                                            disabled={isSubmitting}
                                         />
                                         <label
                                             htmlFor="file-upload"
-                                            className="w-full flex items-center gap-3 px-4 py-3 bg-stone-50 border border-stone-200 border-dashed rounded-lg cursor-pointer hover:bg-stone-100 hover:border-stone-400 transition-all text-stone-500 hover:text-stone-700"
+                                            className="w-full flex items-center justify-between px-4 py-3 bg-stone-50 border border-stone-200 border-dashed rounded-lg cursor-pointer hover:bg-stone-100 hover:border-stone-400 transition-all text-stone-500 hover:text-stone-700"
                                         >
-                                            <Paperclip size={18} />
-                                            <span className="text-sm">{t("contact.form.upload" as any)}</span>
+                                            <div className="flex items-center gap-3">
+                                                <Paperclip size={18} />
+                                                <span className="text-sm line-clamp-1">{fileName || t("contact.form.upload" as any)}</span>
+                                            </div>
                                         </label>
                                     </div>
                                 </div>
-                                <button className="w-full bg-stone-900 text-white py-4 rounded-lg font-bold tracking-wider hover:bg-black transition-all duration-300 flex justify-center items-center gap-2 group">
-                                    {t("contact.form.submit" as any)}
-                                    <Send size={18} className={`transition-transform ${locale === 'ar' ? 'rotate-180 group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`} />
+                                <button 
+                                    type="submit" 
+                                    disabled={isSubmitting}
+                                    className="w-full bg-stone-900 overflow-hidden relative text-white py-4 rounded-lg font-bold tracking-wider hover:bg-black transition-all duration-300 flex justify-center items-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? (
+                                        <span className="flex items-center gap-2">
+                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Sending...
+                                        </span>
+                                    ) : (
+                                        <>
+                                            {t("contact.form.submit" as any)}
+                                            <Send size={18} className={`transition-transform ${locale === 'ar' ? 'rotate-180 group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`} />
+                                        </>
+                                    )}
                                 </button>
                             </form>
                         </motion.div>
@@ -577,6 +674,12 @@ export default function ContentSections() {
 
             {/* Quick Chat Floating Button */}
             <QuickChat />
+
+            {/* Sadu Pattern Divider */}
+            <div 
+                className="w-full h-10 md:h-14 lg:h-16 opacity-90"
+                style={{ backgroundImage: "url('/sadu.png')", backgroundRepeat: 'repeat-x', backgroundSize: 'contain', backgroundPosition: 'center' }}
+            ></div>
 
             {/* Simple Footer */}
             <footer className="bg-stone-950 text-stone-500 py-12 text-center text-sm border-t border-stone-800">

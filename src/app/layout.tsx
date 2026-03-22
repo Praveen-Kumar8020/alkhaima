@@ -14,8 +14,11 @@ const tajawal = Tajawal({
 });
 
 export const metadata: Metadata = {
-  title: "Elite Construction & Real Estate",
-  description: "Premium construction and geotechnical services in Kuwait.",
+  title: "Al Khaima Real Estate | مؤسسة الخيمة العقارية",
+  description: "Al Khaima Real Estate is a Kuwait-based company providing professional property brokerage, marketing, and real estate services. | شركة الخيمة العقارية تقدم خدمات مهنية في الوساطة العقارية والتسويق في الكويت.",
+  icons: {
+    icon: '/loader.png',
+  }
 };
 
 export default function RootLayout({
