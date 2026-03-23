@@ -3,15 +3,78 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { revalidatePath } from 'next/cache';
+import { getStore } from '@netlify/blobs';
 
 const fileLocation = path.join(process.cwd(), 'src', 'data', 'projects.json');
 
+// Check if we are running in a Netlify serverless environment
+const isNetlify = process.env.NETLIFY === "true" || !!process.env.NETLIFY_SITE_ID;
+
 export async function getProjects() {
     try {
-        const data = await fs.readFile(fileLocation, 'utf-8');
-        return JSON.parse(data);
+        if (isNetlify) {
+            const store = getStore("data");
+            const data = await store.get("projects.json", { type: "json" });
+            if (data && Array.isArray(data) && data.length > 0) {
+                return data;
+            }
+        }
+
+        // Fallback or local dev read
+        const localData = await fs.readFile(fileLocation, 'utf-8');
+        return JSON.parse(localData);
     } catch (error) {
+        // If everything fails and no file exists
         return [];
+    }
+}
+
+async function saveProjectsFile(projects: any[]) {
+    if (isNetlify) {
+        const store = getStore("data");
+        await store.setJSON("projects.json", projects);
+    } else {
+        await fs.writeFile(fileLocation, JSON.stringify(projects, null, 2));
+    }
+}
+
+async function saveImageFile(imageFile: File, fileName: string): Promise<string> {
+    const arrayBuffer = await imageFile.arrayBuffer();
+
+    if (isNetlify) {
+        const store = getStore("images");
+        await store.set(fileName, arrayBuffer);
+        // Serve image from api route
+        return `/api/image?id=${fileName}`;
+    } else {
+        const ongoingDir = path.join(process.cwd(), 'public', 'ongoing');
+        try { await fs.mkdir(ongoingDir, { recursive: true }); } catch (e) { }
+
+        const filePath = path.join(ongoingDir, fileName);
+        const buffer = Buffer.from(arrayBuffer);
+        await fs.writeFile(filePath, buffer);
+
+        return `/ongoing/${fileName}`;
+    }
+}
+
+async function deleteImageFile(imageUrl: string) {
+    if (isNetlify) {
+        if (imageUrl.includes('/api/image?id=')) {
+            const fileName = imageUrl.split('id=')[1];
+            if (fileName) {
+                const store = getStore("images");
+                await store.delete(fileName);
+            }
+        }
+    } else {
+        if (imageUrl.startsWith('/ongoing/')) {
+            const fileName = path.basename(imageUrl);
+            const imagePath = path.join(process.cwd(), 'public', 'ongoing', fileName);
+            try {
+                await fs.unlink(imagePath);
+            } catch (err) { }
+        }
     }
 }
 
@@ -31,40 +94,27 @@ export async function addProject(formData: FormData) {
 
         const ext = path.extname(imageFile.name).toLowerCase();
         const allowedExts = ['.jpg', '.jpeg', '.png'];
-        
+
         if (!allowedExts.includes(ext)) {
             return { error: 'Invalid file format. Only JPG, JPEG, and PNG are allowed.' };
         }
 
-        const ongoingDir = path.join(process.cwd(), 'public', 'ongoing');
-        
-        try {
-            await fs.mkdir(ongoingDir, { recursive: true });
-        } catch (e) {}
-
         const fileName = `${Date.now()}${ext}`;
-        const filePath = path.join(ongoingDir, fileName);
-
-        const arrayBuffer = await imageFile.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        await fs.writeFile(filePath, buffer);
-
-        const publicImagePath = `/ongoing/${fileName}`;
+        const finalImagePath = await saveImageFile(imageFile, fileName);
 
         const projects = await getProjects();
         const newId = projects.length > 0 ? Math.max(...projects.map((p: any) => p.id)) + 1 : 1;
 
         const newProject = {
             id: newId,
-            image: publicImagePath,
+            image: finalImagePath,
             title: { en: titleEn, ar: titleAr },
             location: { en: locationEn, ar: locationAr },
             date: { en: dateEn, ar: dateAr }
         };
 
         projects.push(newProject);
-        
-        await fs.writeFile(fileLocation, JSON.stringify(projects, null, 2));
+        await saveProjectsFile(projects);
 
         revalidatePath('/');
         return { success: true };
@@ -78,26 +128,19 @@ export async function deleteProject(id: number) {
     try {
         const projects = await getProjects();
         const projectIndex = projects.findIndex((p: any) => p.id === id);
-        
+
         if (projectIndex === -1) {
             return { error: 'Project not found' };
         }
 
         const project = projects[projectIndex];
-        
-        // Remove image if it is inside 
-        if (project.image && project.image.startsWith('/ongoing/')) {
-            const fileName = path.basename(project.image);
-            const imagePath = path.join(process.cwd(), 'public', 'ongoing', fileName);
-            try {
-                await fs.unlink(imagePath);
-            } catch (err) {
-                console.error("Failed to delete image file:", err);
-            }
+
+        if (project.image) {
+            await deleteImageFile(project.image);
         }
 
         projects.splice(projectIndex, 1);
-        await fs.writeFile(fileLocation, JSON.stringify(projects, null, 2));
+        await saveProjectsFile(projects);
 
         revalidatePath('/');
         return { success: true };
@@ -109,10 +152,9 @@ export async function deleteProject(id: number) {
 export async function translateToArabic(text: string) {
     if (!text || text.trim() === '') return { text: '' };
     try {
-        // Safe, free Translation API
         const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|ar`);
         const data = await response.json();
-        
+
         if (data && data.responseData && data.responseData.translatedText) {
             return { text: data.responseData.translatedText };
         }
