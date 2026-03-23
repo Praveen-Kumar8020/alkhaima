@@ -7,8 +7,10 @@ import { getStore } from '@netlify/blobs';
 
 const fileLocation = path.join(process.cwd(), 'src', 'data', 'projects.json');
 
-// Check if we are running in a Netlify serverless environment
-const isNetlify = process.env.NETLIFY === "true" || !!process.env.NETLIFY_SITE_ID;
+// Check if we are running in a Netlify/AWS serverless environment runtime
+// Standard `NETLIFY` env vars are sometimes not exposed properly in the Lambda runtime itself, so we check cwd.
+const isNetlify = process.env.NODE_ENV === "production" &&
+    (process.cwd().includes('/var/task') || !!process.env.AWS_LAMBDA_FUNCTION_NAME || !!process.env.NETLIFY_SITE_ID);
 
 export async function getProjects() {
     try {
