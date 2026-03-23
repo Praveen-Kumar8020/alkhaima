@@ -121,6 +121,7 @@ export async function addProject(formData: FormData) {
         await saveProjectsFile(projects);
 
         revalidatePath('/');
+        revalidatePath('/admin');
         return { success: true };
     } catch (error: any) {
         console.error("Failed to add project:", error);
@@ -147,6 +148,7 @@ export async function deleteProject(id: number) {
         await saveProjectsFile(projects);
 
         revalidatePath('/');
+        revalidatePath('/admin');
         return { success: true };
     } catch (error: any) {
         return { error: error.message };

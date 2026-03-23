@@ -6,6 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function AdminPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loginUser, setLoginUser] = useState("");
@@ -64,7 +66,7 @@ export default function AdminPage() {
         try {
             const result = await deleteProject(id);
             if (result.success) {
-                await loadProjects();
+                window.location.reload();
             } else {
                 alert("Failed to delete project: " + result.error);
             }
@@ -135,8 +137,7 @@ export default function AdminPage() {
                 setTitleAr("");
                 setLocationAr("");
                 setDateAr("");
-                await loadProjects(); // instant refresh
-                setTimeout(() => setStatus("idle"), 3000);
+                window.location.reload();
             } else {
                 setStatus("error");
                 setErrorMsg(result.error || "Failed to submit");
