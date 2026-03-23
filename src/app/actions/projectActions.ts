@@ -7,14 +7,16 @@ import { getStore } from '@netlify/blobs';
 
 const fileLocation = path.join(process.cwd(), 'src', 'data', 'projects.json');
 
-// Check if we are running in a Netlify/AWS serverless environment runtime
-// Standard `NETLIFY` env vars are sometimes not exposed properly in the Lambda runtime itself, so we check cwd.
-const isNetlify = process.env.NODE_ENV === "production" &&
-    (process.cwd().includes('/var/task') || !!process.env.AWS_LAMBDA_FUNCTION_NAME || !!process.env.NETLIFY_SITE_ID);
+// Dynamically evaluate environment at runtime to bypass Static Module caching side-effects.
+const checkIsNetlify = () => {
+    if (process.env.NETLIFY === "true" || !!process.env.NETLIFY_SITE_ID) return true;
+    if (process.env.NODE_ENV === "production" && (process.cwd().includes('/var/task') || !!process.env.AWS_LAMBDA_FUNCTION_NAME)) return true;
+    return false;
+};
 
 export async function getProjects() {
     try {
-        if (isNetlify) {
+        if (checkIsNetlify()) {
             const store = getStore("data");
             const data = await store.get("projects.json", { type: "json" });
             if (data && Array.isArray(data) && data.length > 0) {
@@ -32,7 +34,7 @@ export async function getProjects() {
 }
 
 async function saveProjectsFile(projects: any[]) {
-    if (isNetlify) {
+    if (checkIsNetlify()) {
         const store = getStore("data");
         await store.setJSON("projects.json", projects);
     } else {
@@ -43,7 +45,7 @@ async function saveProjectsFile(projects: any[]) {
 async function saveImageFile(imageFile: File, fileName: string): Promise<string> {
     const arrayBuffer = await imageFile.arrayBuffer();
 
-    if (isNetlify) {
+    if (checkIsNetlify()) {
         const store = getStore("images");
         await store.set(fileName, arrayBuffer);
         // Serve image from api route
@@ -61,7 +63,7 @@ async function saveImageFile(imageFile: File, fileName: string): Promise<string>
 }
 
 async function deleteImageFile(imageUrl: string) {
-    if (isNetlify) {
+    if (checkIsNetlify()) {
         if (imageUrl.includes('/api/image?id=')) {
             const fileName = imageUrl.split('id=')[1];
             if (fileName) {
