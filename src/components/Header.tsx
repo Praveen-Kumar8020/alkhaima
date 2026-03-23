@@ -5,10 +5,15 @@ import { useTranslation } from "./TranslationProvider";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
+import { usePathname } from "next/navigation";
+
 export default function Header() {
+    const pathname = usePathname();
     const { locale, setLocale, t } = useTranslation();
     const [scrolled, setScrolled] = useState(false);
     const [activeSection, setActiveSection] = useState("home");
+
+
 
     useEffect(() => {
         const handleScroll = () => {
@@ -39,6 +44,10 @@ export default function Header() {
     const handleNavClick = (section: string) => {
         setActiveSection(section);
     };
+
+    if (pathname?.startsWith('/admin')) {
+        return null;
+    }
 
     return (
         <motion.header

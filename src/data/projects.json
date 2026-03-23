@@ -1,0 +1,53 @@
+[
+  {
+    "id": 1,
+    "image": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2062&auto=format&fit=crop",
+    "titleKey": "project.1.title",
+    "locationKey": "project.1.location",
+    "dateKey": "project.1.date"
+  },
+  {
+    "id": 2,
+    "image": "/doha_plant.png",
+    "titleKey": "project.2.title",
+    "locationKey": "project.2.location",
+    "dateKey": "project.2.date"
+  },
+  {
+    "id": 3,
+    "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
+    "titleKey": "project.3.title",
+    "locationKey": "project.3.location",
+    "dateKey": "project.3.date"
+  },
+  {
+    "id": 4,
+    "image": "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?q=80&w=2070&auto=format&fit=crop",
+    "titleKey": "project.4.title",
+    "locationKey": "project.4.location",
+    "dateKey": "project.4.date"
+  },
+  {
+    "id": 5,
+    "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
+    "titleKey": "project.5.title",
+    "locationKey": "project.5.location",
+    "dateKey": "project.5.date"
+  },
+  {
+    "id": 8,
+    "image": "/ongoing/1774171436521.jpg",
+    "title": {
+      "en": "alkhaima estate",
+      "ar": "عقارات الخيمة"
+    },
+    "location": {
+      "en": "Kuwait",
+      "ar": "الكويت"
+    },
+    "date": {
+      "en": "January 2024",
+      "ar": "January 2024"
+    }
+  }
+]

@@ -17,7 +17,7 @@ const TikTokIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
-export default function ContentSections() {
+export default function ContentSections({ dynamicProjects }: { dynamicProjects?: any[] }) {
     const { t, locale } = useTranslation();
     const [currentSlide, setCurrentSlide] = useState(0);
 
@@ -149,52 +149,21 @@ export default function ContentSections() {
         },
     ];
 
-    const projects = [
-        {
-            id: 1,
-            image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2062&auto=format&fit=crop",
-            titleKey: "project.1.title",
-            locationKey: "project.1.location",
-            dateKey: "project.1.date",
-        },
-        {
-            id: 2,
-            image: "/doha_plant.png",
-            titleKey: "project.2.title",
-            locationKey: "project.2.location",
-            dateKey: "project.2.date",
-        },
-        {
-            id: 3,
-            image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop",
-            titleKey: "project.3.title",
-            locationKey: "project.3.location",
-            dateKey: "project.3.date",
-        },
-        {
-            id: 4,
-            image: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?q=80&w=2070&auto=format&fit=crop",
-            titleKey: "project.4.title",
-            locationKey: "project.4.location",
-            dateKey: "project.4.date",
-        },
-        {
-            id: 5,
-            image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2070&auto=format&fit=crop",
-            titleKey: "project.5.title",
-            locationKey: "project.5.location",
-            dateKey: "project.5.date",
-        },
-    ];
+    const projects = dynamicProjects || [];
 
-    const maxSlide = projects.length - 1; // Or responsive logic if needed
+    const maxSlide = Math.max(0, projects.length - 1);
 
     const nextSlide = () => {
-        setCurrentSlide((prev) => (prev === maxSlide ? 0 : prev + 1));
+        setCurrentSlide((prev) => (prev >= maxSlide ? 0 : prev + 1));
     };
 
     const prevSlide = () => {
-        setCurrentSlide((prev) => (prev === 0 ? maxSlide : prev - 1));
+        setCurrentSlide((prev) => (prev <= 0 ? maxSlide : prev - 1));
+    };
+
+    const getField = (project: any, keyName: string, fieldName: string) => {
+        if (project[keyName]) return t(project[keyName] as any);
+        return project[fieldName]?.[locale] || project[fieldName]?.en || "";
     };
 
     return (
@@ -385,22 +354,22 @@ export default function ContentSections() {
                                             <div className="absolute inset-0 bg-black/40 z-10 group-hover:opacity-0 transition-opacity duration-500"></div>
                                             <img
                                                 src={project.image}
-                                                alt={t(project.titleKey as any)}
+                                                alt={getField(project, "titleKey", "title")}
                                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                                             />
                                             <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/80 to-transparent z-10 flex flex-col justify-end p-6">
                                                 <h3 className="text-xl md:text-2xl font-bold text-white mb-4 line-clamp-2">
-                                                    {t(project.titleKey as any)}
+                                                    {getField(project, "titleKey", "title")}
                                                 </h3>
                                                 
                                                 <div className="space-y-2">
                                                     <div className="flex items-center gap-3 text-stone-300">
                                                         <MapPin size={16} className="text-stone-400" />
-                                                        <span className="text-sm">{t(project.locationKey as any)}</span>
+                                                        <span className="text-sm">{getField(project, "locationKey", "location")}</span>
                                                     </div>
                                                     <div className="flex items-center gap-3 text-stone-300">
                                                         <Calendar size={16} className="text-stone-400" />
-                                                        <span className="text-sm">{t(project.dateKey as any)}</span>
+                                                        <span className="text-sm">{getField(project, "dateKey", "date")}</span>
                                                     </div>
                                                 </div>
                                             </div>
